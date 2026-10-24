@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MEMZ Skull Animation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ff0000; --fg: #000000;
+    --slide-bg: #f6f3ee; --slide-fg: #1c1b1a; --slide-accent: #c0181a;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --slide-bg: #1a1918; --slide-fg: #f1ede6; --slide-accent: #ff5a5c; }
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: 'Courier New', Courier, monospace; font-weight: bold;
+    overflow: hidden; cursor: pointer; position: relative;
+  }
+  body[data-state="skull"] { animation: flash 0.9s infinite steps(1); }
+  body[data-state="glitch"] { animation: flash 0.12s infinite steps(1); }
+  @keyframes flash {
+    0%   { background: #ff0000; color: #000; }
+    50%  { background: #000; color: #ff0000; }
+  }
+
+  /* --- Crâne --- */
+  .stage { position: absolute; inset: 0; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 1.5vh;
+           transition: opacity .3s, transform .3s; }
+  pre { white-space: pre; line-height: 1.02; font-size: min(2.6vw, 2.9vh); text-align: left; }
+  .press { font-size: min(3.2vw, 3.4vh); letter-spacing: .3em; animation: blink .9s infinite steps(1); }
+  @keyframes blink { 50% { opacity: .3; } }
+  body[data-state="glitch"] pre { animation: shake .25s infinite steps(1); }
+  @keyframes shake {
+    0% { transform: translate(-8px,2px) skewX(6deg); }
+    25% { transform: translate(10px,-3px) scaleY(1.04); }
+    50% { transform: translate(-4px,4px) skewX(-8deg); }
+    75% { transform: translate(6px,-2px) scaleX(1.05); }
+  }
+  .err { position: absolute; left: 4vw; bottom: 5vh; font-size: min(2.8vw, 3vh); display: none; }
+  body[data-state="glitch"] .err { display: block; }
+
+  /* --- Transformation en diapo --- */
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 2.4vh; padding: 6vw;
+           background: var(--slide-bg); color: var(--slide-fg);
+           font-family: Georgia, 'Times New Roman', serif; font-weight: normal; text-align: center;
+           opacity: 0; pointer-events: none; transform: scale(1.06);
+           transition: opacity .5s, transform .5s; cursor: pointer; }
+  .slide h1 { font-size: clamp(26px, 5vw, 56px); color: var(--slide-accent); }
+  .slide .hint { font-size: clamp(13px, 1.6vw, 18px); opacity: .55; margin-top: 3vh; }
+  body[data-state="slide"] { animation: none; background: var(--slide-bg); cursor: pointer; }
+  body[data-state="slide"] .stage { opacity: 0; transform: scale(.6); pointer-events: none; }
+  body[data-state="slide"] .slide { opacity: 1; pointer-events: auto; transform: none; }
+</style>
+</head>
+<body data-state="skull">
+
+<div class="stage">
+<pre>
+                uuuuuuu
+             uu$$$$$$$$$$$uu
+          uu$$$$$$$$$$$$$$$$$uu
+         u$$$$$$$$$$$$$$$$$$$$$u
+        u$$$$$$$$$$$$$$$$$$$$$$$u
+       u$$$$$$$$$$$$$$$$$$$$$$$$$u
+       u$$$$$$$$$$$$$$$$$$$$$$$$$u
+       u$$$$$$"   "$$$"   "$$$$$$u
+       "$$$$"      u$u       $$$$"
+        $$$u       u$u       u$$$
+        $$$u      u$$$u      u$$$
+         "$$$$uu$$$   $$$uu$$$$"
+          "$$$$$$$"   "$$$$$$$"
+            u$$$$$$$u$$$$$$$u
+             u$"$"$"$"$"$"$u
+  uuu        $$u$ $ $ $ $u$$       uuu
+ u$$$$        $$$$$u$u$u$$$       u$$$$
+  $$$$$uu      "$$$$$$$$$"     uu$$$$$$
+u$$$$$$$$$$$uu    """""    uuuu$$$$$$$$$$
+$$$$"""$$$$$$$$$$uuu   uu$$$$$$$$$"""$$$"
+ """      ""$$$$$$$$$$$uu ""$"""
+           uuuu ""$$$$$$$$$$uuu
+  u$$$uuu$$$$$$$$$uu ""$$$$$$$$$$$uuu$$$
+  $$$$$$$$$$""""           ""$$$$$$$$$$$"
+   "$$$$$"                      ""$$$$""
+     $$$"                         $$$$"
+</pre>
+  <div class="press">PRESS ANY KEY!</div>
+  <div class="err">&gt; SYSTEME CORROMPU... 99%<br>&gt; (non, je rigole)</div>
+</div>
+
+<section class="slide" aria-live="polite">
+  <h1>Voilà, c’est bon, personne n’est mort. Retournons maintenant à notre exposé</h1>
+  <p class="hint">Cliquez ou appuyez sur une touche pour revenir en arrière</p>
+</section>
+
+<script>
+(function () {
+  var state = 'skull', body = document.body;
+  function set(s) { state = s; body.setAttribute('data-state', s); }
+  var shownAt = 0;
+  function trigger() {
+    if (state === 'slide') { if (Date.now() - shownAt > 700) set('skull'); return; }
+    if (state !== 'skull') return;
+    set('glitch');
+    setTimeout(function () { set('slide'); shownAt = Date.now(); }, 1100);
+  }
+  document.addEventListener('pointerdown', trigger);
+  document.addEventListener('keydown', trigger);
+})();
+</script>
+</body>
+</html>
